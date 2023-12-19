@@ -1,16 +1,16 @@
 @testset "Treewidth deletion tests" begin
     # A simple graph to test on.
     N = 10
-    G = lg.SimpleGraph(N)
+    G = SimpleGraph(N)
     for i = 1:N
         for j = i+1:N
-            lg.add_edge!(G, i, j)
+            add_edge!(G, i, j)
         end
     end
 
     for i = 1:10
-        lg.add_vertex!(G)
-        lg.add_edge!(G, N+i-1, N+i)
+        add_vertex!(G)
+        add_edge!(G, N+i-1, N+i)
     end
 
     G = LabeledGraph(G)

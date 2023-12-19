@@ -1,10 +1,10 @@
 @testset "Tree decomposition tests" begin
     # A simple graph to test flow cutter on.
     N = 10
-    G = lg.SimpleGraph(N)
+    G = SimpleGraph(N)
     for i = 1:N
         for j = i+1:N
-            lg.add_edge!(G, i, j)
+            add_edge!(G, i, j)
         end
     end
 
@@ -17,17 +17,17 @@
 
     # A simple graph with two disconnected cliques to test flow cutter on.
     N = 10; n = 5
-    G = lg.SimpleGraph(N+n)
+    G = SimpleGraph(N+n)
     # Clique 1
     for i = 1:N-1
         for j = i+1:N
-            lg.add_edge!(G, i, j)
+            add_edge!(G, i, j)
         end
     end
     # Clique 2
     for i = N+1:N+n-1
         for j = i+1:N+n
-            lg.add_edge!(G, i, j)
+            add_edge!(G, i, j)
         end
     end
 
@@ -51,6 +51,6 @@
     end
     treewidth_upperbound, min_fill_order = min_fill(G)
     B, T = build_clique_tree(G, min_fill_order)
-    @test length(B) == lg.nv(T)
+    @test length(B) == nv(T)
     @test treewidth_upperbound == maximum(length.(B)) - 1
 end

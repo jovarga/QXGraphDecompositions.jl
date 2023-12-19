@@ -1,7 +1,7 @@
 using QXGraphDecompositions
 using Test
 
-import LightGraphs; lg = LightGraphs
+using Graphs
 
 include("LabeledGraph_tests.jl")
 include("elimination_order_tests.jl")

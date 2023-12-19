@@ -1,18 +1,18 @@
 @testset "LabeledGraph tests" begin
     # A simple graph to test LabeledGraph functions on.
     N = 6
-    G = lg.SimpleGraph(N)
+    G = SimpleGraph(N)
     for i = 1:N
         for j = i+1:N
-            lg.add_edge!(G, i, j)
+            add_edge!(G, i, j)
         end
     end
-    vertex_labels = [Symbol(:vertex_, n) for n in lg.vertices(G)]
+    vertex_labels = [Symbol(:vertex_, n) for n in vertices(G)]
     Labeled_G = LabeledGraph(G, vertex_labels)
 
     # Test functions for inspecting a labeled graph.
-    @test nv(Labeled_G) == lg.nv(G)
-    @test ne(Labeled_G) == lg.ne(G)
+    @test nv(Labeled_G) == nv(G)
+    @test ne(Labeled_G) == ne(G)
     @test labels(Labeled_G) == Labeled_G.labels
     @test get_vertex(Labeled_G, :vertex_3) == 3
 

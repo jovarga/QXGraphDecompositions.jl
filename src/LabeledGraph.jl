@@ -1,4 +1,5 @@
-import LightGraphs; lg = LightGraphs
+using Graphs
+import Graphs: vertices, nv, add_vertex!, rem_vertex!, edges, ne, add_edge!, has_edge, rem_edge!, degree, all_neighbors
 
 export LabeledGraph, labels, graph_to_gr, graph_to_cnf
 export get_vertex, vertices, nv, add_vertex!, rem_vertex!
@@ -35,14 +36,14 @@ julia> g.labels[1]
 ```
 """
 struct LabeledGraph
-    graph::lg.AbstractGraph
+    graph::AbstractGraph
     labels::Vector{Symbol}
 
-    LabeledGraph() = new(lg.SimpleGraph(), Symbol[])
-    LabeledGraph(G::lg.AbstractGraph) = new(deepcopy(G), Symbol.([1:lg.nv(G)...]))
-    LabeledGraph(G::lg.AbstractGraph, labels::Array{Symbol, 1}) = new(deepcopy(G), labels)
-    LabeledGraph(N::Int) = LabeledGraph(lg.SimpleGraph(N))
-    LabeledGraph(labels::Array{Symbol, 1}) = new(lg.SimpleGraph(length(labels)), labels)
+    LabeledGraph() = new(SimpleGraph(), Symbol[])
+    LabeledGraph(G::AbstractGraph) = new(deepcopy(G), Symbol.([1:nv(G)...]))
+    LabeledGraph(G::AbstractGraph, labels::Array{Symbol, 1}) = new(deepcopy(G), labels)
+    LabeledGraph(N::Int) = LabeledGraph(SimpleGraph(N))
+    LabeledGraph(labels::Array{Symbol, 1}) = new(SimpleGraph(length(labels)), labels)
 end
 
 
@@ -53,10 +54,10 @@ Write the provided graph to a file in gr format.
 """
 graph_to_gr(G::LabeledGraph, filename::String) = graph_to_gr(G.graph, filename::String)
 
-function graph_to_gr(G::lg.AbstractGraph, filename::String)
+function graph_to_gr(G::AbstractGraph, filename::String)
     open(filename, "w") do io
-        write(io, "p tw $(lg.nv(G)) $(lg.ne(G))\n")
-        for e in lg.edges(G)
+        write(io, "p tw $(nv(G)) $(ne(G))\n")
+        for e in edges(G)
             write(io, "$(e.src) $(e.dst)\n")
         end
     end
@@ -72,12 +73,12 @@ function graph_from_gr(filename::String)
 
     # Create a Graph with the correct number of vertices.
     num_vertices, num_edges = parse.(Int, split(lines[1], ' ')[3:end])
-    G = lg.SimpleGraph(num_vertices)
+    G = SimpleGraph(num_vertices)
 
     # Add an edge to the graph for every other line in the file.
     for line in lines[2:end]
         src, dst = parse.(Int, split(line, ' '))
-        lg.add_edge!(G, src, dst)
+        add_edge!(G, src, dst)
     end
     LabeledGraph(G)
 end
@@ -90,10 +91,10 @@ Write the provided graph to a file in cnf format.
 """
 graph_to_cnf(G::LabeledGraph, filename::String) = graph_to_cnf(G.graph, filename::String)
 
-function graph_to_cnf(G::lg.AbstractGraph, filename::String)
+function graph_to_cnf(G::AbstractGraph, filename::String)
     open(filename, "w") do io
-        write(io, "p cnf $(lg.nv(G)) $(lg.ne(G))\n")
-        for e in lg.edges(G)
+        write(io, "p cnf $(nv(G)) $(ne(G))\n")
+        for e in edges(G)
             write(io, "$(e.src) $(e.dst) 0\n")
         end
     end
@@ -109,12 +110,12 @@ function graph_from_cnf(filename::String)
 
     # Create a Graph with the correct number of vertices.
     num_vertices, num_edges = parse.(Int, split(lines[1], ' ')[3:end])
-    G = lg.SimpleGraph(num_vertices)
+    G = SimpleGraph(num_vertices)
 
     # Add an edge to the graph for every other line in the file.
     for line in lines[2:end]
         src, dst = parse.(Int, split(line, ' ')[1:2])
-        lg.add_edge!(G, src, dst)
+        add_edge!(G, src, dst)
     end
     LabeledGraph(G)
 end
@@ -161,7 +162,7 @@ end
 Return the vertices of a labeled graph.
 """
 function vertices(G::LabeledGraph)
-    lg.vertices(G.graph)
+    vertices(G.graph)
 end
 
 """
@@ -170,7 +171,7 @@ end
 Return the number of vertices in `G`.
 """
 function nv(G::LabeledGraph)
-    lg.nv(G.graph)
+    nv(G.graph)
 end
 
 """
@@ -179,7 +180,7 @@ end
 Add a new vertex to `G` and assign the given label to it.
 """
 function add_vertex!(G::LabeledGraph, label::Symbol)
-    lg.add_vertex!(G.graph)
+    add_vertex!(G.graph)
     append!(G.labels, Symbol[label])
 end
 
@@ -189,7 +190,7 @@ end
 Delete the vertex with index or label `v` from `G`.
 """
 function rem_vertex!(G::LabeledGraph, v::Int)
-    lg.rem_vertex!(G.graph, v)
+    rem_vertex!(G.graph, v)
     G.labels[v] = G.labels[end]
     deleteat!(G.labels, length(G.labels))
 end
@@ -208,7 +209,7 @@ end
 Return an iterator of the edges of `G`.
 """
 function edges(G::LabeledGraph)
-    lg.edges(G.graph)
+    edges(G.graph)
 end
 
 """
@@ -217,7 +218,7 @@ end
 Return the number of edges in `G`.
 """
 function ne(G::LabeledGraph)
-    lg.ne(G.graph)
+    ne(G.graph)
 end
 
 """
@@ -226,13 +227,13 @@ end
 Add an edge to `G` connecting vertices `u` and `v`.
 """
 function add_edge!(G::LabeledGraph, u::Int, v::Int)
-    lg.add_edge!(G.graph, u, v)
+    add_edge!(G.graph, u, v)
 end
 
 function add_edge!(G::LabeledGraph, u_label::Symbol, v_label::Symbol)
     u = get_vertex(G, u_label)
     v = get_vertex(G, v_label)
-    lg.add_edge!(G.graph, u, v)
+    add_edge!(G.graph, u, v)
 end
 
 """
@@ -241,7 +242,7 @@ end
 Return true if `G` has an edge connecting vertices `u` and `v`. Return false otherwise.
 """
 function has_edge(G::LabeledGraph, u::Int, v::Int)
-    lg.has_edge(G.graph, u, v)
+    has_edge(G.graph, u, v)
 end
 
 """
@@ -250,7 +251,7 @@ end
 Remove the edge connecting vertices `u` and `v` if it exists.
 """
 function rem_edge!(G::LabeledGraph, u::Int, v::Int)
-    lg.rem_edge!(G.graph, u, v)
+    rem_edge!(G.graph, u, v)
 end
 
 """
@@ -260,16 +261,16 @@ Return an array containing the degree of each vertex of `G`. If `v` is specified
 return degrees for vertices in `v`.
 """
 function degree(G::LabeledGraph)
-    lg.degree(G.graph)
+    degree(G.graph)
 end
 
 function degree(G::LabeledGraph, v::Union{Int, Array{Int, 1}})
-    lg.degree(G.graph, v)
+    degree(G.graph, v)
 end
 
 function degree(G::LabeledGraph, v_label::Union{Symbol, Array{Symbol, 1}})
     v = get_vertex(G, v_label)
-    (v===nothing) ? false : lg.degree(G.graph, v)
+    (v===nothing) ? false : degree(G.graph, v)
 end
 
 """
@@ -278,12 +279,12 @@ end
 Return an array of all neighbors of `v` in `G`.
 """
 function all_neighbors(G::LabeledGraph, v::Int)
-    lg.all_neighbors(G.graph, v)
+    all_neighbors(G.graph, v)
 end
 
 function all_neighbors(G::LabeledGraph, v_label::Symbol)
     v = get_vertex(G, v_label)
-    lg.all_neighbors(G.graph, v)
+    all_neighbors(G.graph, v)
 end
 
 """
@@ -393,14 +394,14 @@ vertex `v` a clique.
 """
 cliqueness(G::LabeledGraph, v::Integer)::Int = cliqueness(G.graph, v)
 
-function cliqueness(G::lg.AbstractGraph, v::Integer)::Int
-    neighborhood = lg.all_neighbors(G, v)::Array{Int64, 1}
+function cliqueness(G::AbstractGraph, v::Integer)::Int
+    neighborhood = all_neighbors(G, v)::Array{Int64, 1}
     count = 0
     for i in 1:length(neighborhood)
         for j in i+1:length(neighborhood)
             vi = neighborhood[i]
             ui = neighborhood[j]
-            if !lg.has_edge(G, ui, vi)::Bool
+            if !has_edge(G, ui, vi)::Bool
                 count += 1
             end
         end
@@ -441,14 +442,14 @@ The symbols in the array `vertex_labels` are used as labels for the vertices of 
 line graph. If `vertex_labels` is empty then labels are created by combining the indices of 
 the corresponding vertices in 'G'.
 """
-function line_graph(G::lg.AbstractGraph; 
+function line_graph(G::AbstractGraph; 
                     vertex_labels::Array{Symbol, 1}=Symbol[])
     # Create a labeled graph LG whose vertices corresponding to the edges of G.
-    G_edges = collect(lg.edges(G))
+    G_edges = collect(edges(G))
     if isempty(vertex_labels)
         vertex_labels = [combine_labels(e.src, e.dst) for e in G_edges]
     end
-    LG = LabeledGraph(lg.SimpleGraph(length(G_edges)), vertex_labels)
+    LG = LabeledGraph(SimpleGraph(length(G_edges)), vertex_labels)
 
     # Connect any two vertices of LG whose corresponding edges in G share a vertex in G.
     for i in 1:length(G_edges)-1

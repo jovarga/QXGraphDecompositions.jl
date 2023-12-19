@@ -1,6 +1,6 @@
 using FlowCutterPACE17_jll
 
-import LightGraphs; lg = LightGraphs
+using Graphs
 
 export flow_cutter
 export min_fill, order_from_tree_decomposition, restricted_mcs, find_treewidth_from_order
@@ -14,7 +14,7 @@ export greedy_treewidth_deletion, direct_treewidth_score, build_clique_tree
 # **************************************************************************************** #
 
 """
-    flow_cutter(G::lg.AbstractGraph, time::Integer=10; seed::Integer=-1)
+    flow_cutter(G::AbstractGraph, time::Integer=10; seed::Integer=-1)
 
 Run the flow cutter algorithm for `time` seconds to find a tree decomposition for the graph 
 `G` with minimal treewidth.
@@ -39,7 +39,7 @@ Computing Tree Decompositions with FlowCutter - https://arxiv.org/abs/1709.08949
 - `seed::Integer=-1`: The seed used by flow cutter. Most be a non negative integer,
                       otherwise the seed is set by flow cutter.
 """
-function flow_cutter(G::lg.AbstractGraph, time::Integer=10; seed::Integer=-1)
+function flow_cutter(G::AbstractGraph, time::Integer=10; seed::Integer=-1)
     # Create a temporary directory with the input and output files for flow cutter.
     out = Pipe()
     flow_cutter_dir = dirname(FlowCutterPACE17_jll.flow_cutter_pace17_path)
@@ -100,7 +100,7 @@ The algorithm used is by Schutski et al in Phys. Rev. A 102, 062614.
 function build_clique_tree(G, π̃)
     G = deepcopy(G)
     B = [] # bags
-    T = lg.SimpleGraph() # tree
+    T = SimpleGraph() # tree
 
     orphan_bags = [] # Array to hold parentless vertices of T
     for i = 1:length(π̃)
@@ -130,7 +130,7 @@ function build_clique_tree(G, π̃)
         # and append it to the parentless vertices.
         if !drop_bag
             append!(B, [b])
-            lg.add_vertex!(T)
+            add_vertex!(T)
             append!(orphan_bags, [ib])
         end
 
@@ -143,7 +143,7 @@ function build_clique_tree(G, π̃)
                 orphan_bags = setdiff(orphan_bags, [i])
                 # append!(B, [b])
                 # add_vertex!(T)
-                lg.add_edge!(T, i, ib)
+                add_edge!(T, i, ib)
             end
         end
     end
